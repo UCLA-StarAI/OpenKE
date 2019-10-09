@@ -292,8 +292,9 @@ class Config(object):
 						self.optimizer = tf.train.AdamOptimizer(self.alpha)
 					else:
 						self.optimizer = tf.train.GradientDescentOptimizer(self.alpha)
-					grads_and_vars = self.optimizer.compute_gradients(self.trainModel.loss)
-					self.train_op = self.optimizer.apply_gradients(grads_and_vars)
+					self.grads_and_vars = self.optimizer.compute_gradients(self.trainModel.loss)
+					self.norms = [tf.norm(g.values) for g,v in self.grads_and_vars]
+					self.train_op = self.optimizer.apply_gradients(self.grads_and_vars)
 				self.saver = tf.train.Saver()
 				self.sess.run(tf.global_variables_initializer())
 
@@ -304,7 +305,9 @@ class Config(object):
 			self.trainModel.batch_r: batch_r,
 			self.trainModel.batch_y: batch_y
 		}
-		_, loss = self.sess.run([self.train_op, self.trainModel.loss], feed_dict)
+		n,_, loss = self.sess.run([self.norms, self.train_op, self.trainModel.loss], feed_dict)
+		# print("looping")
+		# print(n)
 		return loss
 
 	def test_step(self, test_h, test_t, test_r):
