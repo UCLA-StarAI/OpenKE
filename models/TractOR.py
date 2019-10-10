@@ -8,8 +8,8 @@ class TractOR(Model):
 	TractOR is a model based computing the independent OR over dimensions of the embedding. Its definition is rooted in probabilistic database semantics to allow for tractable querying on low dimensional embeddings.
 	'''
 	def _calc(self, h, t, r):
-		return  1 - tf.reduce_prod(1 - h * r * t/(tf.norm(h) * tf.norm(r) * tf.norm(t)), keep_dims = False)
-		# return  - tf.reduce_sum(tf.log(1 - tf.sigmoid(h) * tf.sigmoid(r) * tf.sigmoid(t)), keep_dims = False)
+		return  1 - tf.reduce_prod(1 - h * r * t/(tf.norm(h) * tf.norm(r) * tf.norm(t)), -1, keep_dims = False)
+		# return  - tf.reduce_sum(tf.log(1 - tf.sigmoid(h) * tf.sigmoid(r) * tf.sigmoid(t)), -1, keep_dims = False)
 
 	def embedding_def(self):
 		config = self.get_config()
@@ -32,6 +32,7 @@ class TractOR(Model):
 		n_r = tf.nn.embedding_lookup(self.rel_embeddings, neg_r)
 		_p_score = self._calc(p_h, p_t, p_r)
 		_n_score = self._calc(n_h, n_t, n_r)
+		print ("here")
 		print (_n_score.get_shape())
 		loss_func = tf.reduce_mean(tf.nn.softplus(- pos_y * _p_score) + tf.nn.softplus(- neg_y * _n_score))
 		regul_func = tf.reduce_mean(p_h ** 2 + p_t ** 2 + p_r ** 2 + n_h ** 2 + n_t ** 2 + n_r ** 2) 
