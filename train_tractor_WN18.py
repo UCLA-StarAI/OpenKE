@@ -11,7 +11,7 @@ con.set_test_link_prediction(True)
 # con.set_test_triple_classification(True)
 
 con.set_work_threads(8)
-con.set_train_times(100)
+con.set_train_times(1000)
 con.set_nbatches(100)
 con.set_alpha(0.5)
 con.set_lmbda(0.09)
