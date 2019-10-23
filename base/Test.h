@@ -61,14 +61,14 @@ void testHead(REAL *con) {
     for (INT j = 0; j < entityTotal; j++) {
         if (j != h) {
             REAL value = con[j];
-            if (value < minimal) {
+            if (value <= minimal) {
                 l_s += 1;
                 if (not _find(j, t, r))
                     l_filter_s += 1;
             }
             while (lef < rig && head_type[lef] < j) lef ++;
             if (lef < rig && j == head_type[lef]) {
-                if (value < minimal) {
+                if (value <= minimal) {
                     l_s_constrain += 1;
                     if (not _find(j, t, r)) {
                         l_filter_s_constrain += 1;
@@ -119,14 +119,14 @@ void testTail(REAL *con) {
     for (INT j = 0; j < entityTotal; j++) {
         if (j != t) {
             REAL value = con[j];
-            if (value < minimal) {
+            if (value <= minimal) {
                 r_s += 1;
                 if (not _find(h, j, r))
                     r_filter_s += 1;
             }
             while (lef < rig && tail_type[lef] < j) lef ++;
             if (lef < rig && j == tail_type[lef]) {
-                    if (value < minimal) {
+                    if (value <= minimal) {
                         r_s_constrain += 1;
                         if (not _find(h, j ,r)) {
                             r_filter_s_constrain += 1;
