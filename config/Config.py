@@ -6,6 +6,7 @@ import time
 import datetime
 import ctypes
 import json
+from tqdm import tqdm
 
 
 class Config(object):
@@ -67,7 +68,7 @@ class Config(object):
         self.test_link_prediction = False
         self.test_triple_classification = False
         self.early_stopping = None  # It expects a tuple of the following: (patience, min_delta)
-        self.n_mix = 1  # Number of mixtures
+        self.n_mix = 1
 
     def init_link_prediction(self):
         r'''
@@ -236,9 +237,6 @@ class Config(object):
     def set_early_stopping(self, early_stopping):
         self.early_stopping = early_stopping
 
-    def set_num_mixtures(self, n_mix):
-        self.n_mix = n_mix
-
     # call C function for sampling
     def sampling(self):
         self.lib.sampling(self.batch_h_addr, self.batch_t_addr,
@@ -340,9 +338,7 @@ class Config(object):
                             self.alpha)
                     self.grads_and_vars = self.optimizer.compute_gradients(
                         self.trainModel.loss)
-                    self.norms = [
-                        tf.norm(g) for g, v in self.grads_and_vars
-                    ]
+                    self.norms = [tf.norm(g) for g, v in self.grads_and_vars]
                     self.train_op = self.optimizer.apply_gradients(
                         self.grads_and_vars)
                 self.saver = tf.train.Saver()
@@ -355,8 +351,10 @@ class Config(object):
             self.trainModel.batch_r: batch_r,
             self.trainModel.batch_y: batch_y
         }
+        # grads = tf.gradients(self.trainModel.loss, self.trainModel.ent_embeddings)
         n, _, loss = self.sess.run(
             [self.norms, self.train_op, self.trainModel.loss], feed_dict)
+        # print(g)
         # print("looping")
         # print(n)
         return loss
@@ -417,7 +415,7 @@ class Config(object):
                     self.restore_tensorflow()
                 if self.test_link_prediction:
                     total = self.lib.getTestTotal()
-                    for times in range(total):
+                    for times in tqdm(range(total)):
                         self.lib.getHeadBatch(self.test_h_addr,
                                               self.test_t_addr,
                                               self.test_r_addr)
@@ -431,8 +429,8 @@ class Config(object):
                         res = self.test_step(self.test_h, self.test_t,
                                              self.test_r)
                         self.lib.testTail(res.__array_interface__['data'][0])
-                        if self.log_on:
-                            print(times)
+                        # if self.log_on:
+                        # 	print(times)
                     self.lib.test_link_prediction()
                 if self.test_triple_classification:
                     self.lib.getValidBatch(
